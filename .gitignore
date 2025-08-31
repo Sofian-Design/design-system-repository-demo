@@ -1,2 +1,4 @@
 node_modules/
 .history
+storybook-static/
+src/icons.generated.ts
