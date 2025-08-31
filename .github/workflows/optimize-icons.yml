@@ -17,5 +17,15 @@ jobs:
         with:
           node-version: 20
       - run: yarn ci
-      - run: yarn run optimize-icons
-      - run: git diff --quiet || (echo "SVGs are not optimized" && exit 1)
+      - name: Optimize SVGs
+        run: yarn run optimize-icons
+      - name: Verify SVGs are optimized (icons only)
+        run: |
+          # Only check for diffs under src/icons/**/*.svg so unrelated changes do not fail this job
+          git update-index -q --refresh
+          git diff --quiet -- src/icons || (echo "SVGs are not optimized. Run 'yarn optimize-icons' locally and commit changes." && git --no-pager diff --name-only -- src/icons && exit 1)
+      - name: Verify icons.generated.ts is in sync
+        run: |
+          yarn run generate:icons
+          # Fail only if regeneration changed the generated map
+          git diff --quiet -- src/icons.generated.ts || (echo "icons.generated.ts is out of date. Run 'yarn generate:icons' and commit." && git --no-pager diff --name-only -- src/icons.generated.ts && exit 1)
