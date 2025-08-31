@@ -16,6 +16,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm ci
-      - run: npm run optimize-icons
+      - run: yarn ci
+      - run: yarn run optimize-icons
       - run: git diff --quiet || (echo "SVGs are not optimized" && exit 1)
