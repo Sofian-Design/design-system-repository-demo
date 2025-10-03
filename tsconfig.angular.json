@@ -1,0 +1,44 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist/angular/out-tsc",
+    "declaration": true,
+    "declarationMap": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "module": "ES2022",
+    "target": "ES2022",
+    "moduleResolution": "node",
+    "noEmit": false,
+    "useDefineForClassFields": false,
+    "types": ["node"],
+    "rootDir": "./src/angular",
+    "paths": {
+      "@components": ["src/components/index.ts"],
+      "@components/Button/button.styles": [
+        "src/angular/button/button.styles.ts"
+      ],
+      "@components/*": ["src/components/*"],
+      "@web-components": ["src/web-components/index.ts"],
+      "@web-components/*": ["src/web-components/*"],
+      "@shared": ["src/shared/index.ts"],
+      "@shared/*": ["src/shared/*"],
+      "@styles": ["src/styles/index.css"],
+      "@styles/*": ["src/styles/*"]
+    }
+  },
+  "angularCompilerOptions": {
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true,
+    "compilationMode": "partial"
+  },
+  "include": [
+    "src/angular/**/*.ts"
+  ],
+  "exclude": [
+    "src/angular/**/*.test.ts",
+    "src/angular/**/*.spec.ts",
+    "src/angular/**/__tests__/**/*"
+  ]
+}

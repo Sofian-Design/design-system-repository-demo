@@ -2,7 +2,7 @@ import { readdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
 import { optimize } from 'svgo';
 
-const ICONS_DIR = path.resolve('src', 'icons');
+const ICONS_DIR = path.resolve('src', 'shared', 'assets', 'icons');
 
 async function* getSvgs(dir) {
   const dirents = await readdir(dir, { withFileTypes: true });

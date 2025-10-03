@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import Icon from "../components/Icon";
+import { Icon } from "@components";
 
 // Discover icons and categories from the filesystem via Vite's glob import.
-const outlineFiles = import.meta.glob("../icons/outline/**/*.svg", { eager: true });
-const solidFiles = import.meta.glob("../icons/solid/**/*.svg", { eager: true });
+const outlineFiles = import.meta.glob("@shared/assets/icons/outline/**/*.svg", { eager: true });
+const solidFiles = import.meta.glob("@shared/assets/icons/solid/**/*.svg", { eager: true });
 
 type Variant = "outline" | "solid";
 type IconRecord = { name: string; category: string; variant: Variant };
@@ -14,7 +14,7 @@ function parseFilesToMeta(files: Record<string, unknown>, variant: Variant): Ico
   const items: IconRecord[] = [];
   for (const p of Object.keys(files)) {
     const key = p.replace(/\\/g, "/");
-    // Expect patterns like ../icons/outline/<category>/<name>.svg
+    // Expect patterns like @shared/assets/icons/outline/<category>/<name>.svg
     const m = key.match(/icons\/(outline|solid)\/([^/]+)\/([^/]+)\.svg$/);
     if (!m) continue;
     const category = m[2];
@@ -31,7 +31,7 @@ const ALL_META: IconRecord[] = [...OUTLINE_META, ...SOLID_META];
 const ALL_CATEGORIES = Array.from(new Set(ALL_META.map((i) => i.category))).sort();
 
 const meta: Meta = {
-  title: "Gallery/Icons Gallery",
+  title: "Gallery/Icons",
   argTypes: {
     variant: {
       control: { type: "inline-radio" },

@@ -1,0 +1,62 @@
+name: Validate
+
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - '*'
+    paths-ignore:
+      - '.github/workflows/release.yml'
+      - '.changeset/**'
+      - 'README.md'
+      - 'docs/**'
+      - 'CHANGELOG.md'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable Corepack (Yarn)
+        run: |
+          corepack enable
+          corepack prepare yarn@4.9.4 --activate
+
+      - name: Cache Yarn cache (Yarn v4)
+        uses: actions/cache@v4
+        with:
+          path: .yarn/cache
+          key: ${{ runner.os }}-yarn4-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn4-
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Verify AGENTS semantic version entries
+        env:
+          VERIFY_AGENTS_BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || format('origin/{0}', github.event.repository.default_branch) }}
+        run: yarn verify:agents
+
+      - name: Run unit tests
+        run: yarn test
+
+      - name: Generate icons
+        run: yarn generate:icons
+
+      - name: Build package
+        run: yarn build

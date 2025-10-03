@@ -1,5 +1,9 @@
 node_modules/
 .history
 storybook-static/
+dist/
+.angular/
 src/icons.generated.ts
+src/shared/icons/icons.generated.ts
 *.log
+.yarn/install-state.gz

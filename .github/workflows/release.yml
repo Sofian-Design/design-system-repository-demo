@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable Corepack (Yarn)
+        run: |
+          corepack enable
+          corepack prepare yarn@4.9.4 --activate
+
+      - name: Cache Yarn cache (Yarn v4)
+        uses: actions/cache@v4
+        with:
+          path: .yarn/cache
+          key: ${{ runner.os }}-yarn4-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn4-
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Verify AGENTS semantic version entries
+        env:
+          VERIFY_AGENTS_BASE: ${{ github.event.before && github.event.before != '0000000000000000000000000000000000000000' ? github.event.before : format('{0}^', github.sha) }}
+          VERIFY_AGENTS_HEAD: ${{ github.sha }}
+        run: yarn verify:agents
+
+      - name: Apply version bumps and publish
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: yarn run version
+          publish: yarn release
+          commit: chore: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Run tests after versioning
+        if: steps.changesets.outputs.hasChangesets == 'true'
+        run: yarn test
+
+      - name: Build package after versioning
+        if: steps.changesets.outputs.hasChangesets == 'true'
+        run: yarn build
+
+      - name: Upload release changelog
+        if: steps.changesets.outputs.hasChangesets == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-changelog
+          path: CHANGELOG.md
+          if-no-files-found: warn

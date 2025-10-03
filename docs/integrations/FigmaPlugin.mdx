@@ -1,0 +1,52 @@
+import { Meta, Title } from '@storybook/addon-docs/blocks';
+
+<Meta title="Docs/Figma Plugin" />
+
+<Title>Figma Icon Exporter</Title>
+
+This repository is designed to work hand‑in‑hand with the [Figma Icon Exporter](https://www.figma.com/community/plugin/1533548616572213704/figma-icon-exporter) plugin. The plugin automates exporting icons from Figma and opening a pull request in this repo with the updated SVG files.
+
+## Expected export structure
+
+The plugin should export icons into the following folders so the generator can infer style and category automatically:
+
+```
+src/
+  shared/
+    assets/
+      icons/
+        outline/
+          ai/
+          media/
+          navigation/
+          status/
+          users/
+          ...
+        solid/
+          ai/
+          media/
+          navigation/
+          status/
+          users/
+          ...
+```
+
+Each icon is a single SVG file: `src/shared/assets/icons/{outline|solid}/{category}/{name}.svg`.
+
+## Authoring guidelines (Figma → SVG)
+
+- Flatten strokes for outline icons so thickness scales predictably.
+- Avoid embedding colors; SVGO (and the component) normalize to `currentColor`.
+- Use even‑odd rules when needed for “holes” (donuts, counters). The generator preserves `fill-rule`/`clip-rule`.
+- Prefer 24×24 viewBox (`0 0 24 24`) for consistency.
+
+## CI steps after export
+
+1. Optimize SVGs (SVGO) to normalize attributes and size.
+2. Generate the `icons.generated.ts` map in `src/shared/icons`.
+3. Auto‑commit changes back to the PR branch (for same‑repo branches). For forks, the workflow uploads a patch artifact and comments on the PR.
+
+## Useful links
+
+- Plugin (Figma Community): [Figma Icon Exporter](https://www.figma.com/community/plugin/1533548616572213704/figma-icon-exporter)
+- Plugin Documentation: [Documentation](https://sofian-design.github.io/fivra/)

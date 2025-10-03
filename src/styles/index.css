@@ -1,0 +1,13 @@
+@layer fivra.tokens.engage, fivra.tokens.legacy;
+
+@import url('./fonts.css');
+
+@import url('./themes/engage.css') layer(fivra.tokens.engage);
+
+@import url('./themes/legacy.css') layer(fivra.tokens.legacy);
+
+/*
+  Theme variables are resolved against the `data-fivra-theme` attribute.
+  - Engage tokens are the default and apply to :root.
+  - Set `data-fivra-theme="legacy"` on any container to opt into legacy tokens.
+*/

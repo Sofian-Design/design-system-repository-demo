@@ -1,0 +1,56 @@
+import { Meta, Title, Subtitle } from '@storybook/addon-docs/blocks';
+
+<Meta title="Foundations/Welcome" />
+
+<Title>Design System Icons — Welcome</Title>
+
+<Subtitle>Single Source of Truth (SSoT) for product icons</Subtitle>
+
+This repository demonstrates a practical Single Source of Truth for SVG icons exported from Figma. Icons are exported programmatically via the [Figma Icon Exporter](https://www.figma.com/community/plugin/1533548616572213704/figma-icon-exporter) plugin, opened as a pull request, then normalized and mapped for consumption in code and documentation.
+
+> Figma Icon Exporter plugin [Documentation](https://sofian-design.github.io/fivra/).
+
+## What’s in here
+
+- Collection of SVGs organized by style and category: `src/shared/assets/icons/{outline|solid}/{category}/name.svg`
+- A generator that builds a typed icons map: `yarn generate:icons` → `src/shared/icons/icons.generated.ts`
+- An `Icon` React component that renders icons by name and style
+- A `Button` primitive with shared React and `<fivra-button>` implementations
+- An Icons Gallery with filters, search and click‑to‑copy
+- CI workflows that optimize icons, keep the generated map in sync, and deploy Storybook
+
+## Typical flow
+
+1. Designers export icons from Figma using the Figma Icon Exporter plugin (see the “Figma Plugin” page).
+2. The plugin creates a PR with raw SVGs.
+3. GitHub Actions runs:
+   - `optimize-icons` (SVGO pass, color normalization).
+   - `generate:icons` (produces `src/shared/icons/icons.generated.ts`).
+   - Auto‑commits the results back to the PR branch (or uploads a patch for forks).
+4. On merge, Storybook builds and deploys to GitHub Pages.
+
+## Using the Icon component
+
+```tsx
+import { Icon } from 'your-icons-package';
+
+export function Example() {
+  return (
+    <>
+      <Icon name="chevron-right" variant="outline" size={24} color="#334155" />
+      <Icon name="chevron-right" variant="solid" size={24} color="#334155" />
+    </>
+  );
+}
+```
+
+Notes:
+
+- Outline thickness is baked into the `outline` assets. The component intentionally does not expose stroke/strokeWidth props.
+- Colors are applied via `fill="currentColor"`; set the `color` prop (or CSS `color`) to theme icons.
+- The generator preserves `fill-rule`/`clip-rule` and ignores `<defs>` clip paths to avoid “solid square” rendering.
+
+## Explore
+
+- “Components/Icon/React” — usage and examples.
+- “Gallery/Icons” — browse/search all icons; click to copy an icon name.

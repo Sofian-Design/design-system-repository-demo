@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
-    "types": ["node", "vite/client"],
+    "types": ["node", "vite/client", "@testing-library/jest-dom"],
     "moduleResolution": "Node",
     "jsx": "react-jsx",
     "allowJs": true,
@@ -12,9 +12,20 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
+    "useDefineForClassFields": false,
     "strict": true,
     "noEmit": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@components": ["src/components/index.ts"],
+      "@components/*": ["src/components/*"],
+      "@web-components": ["src/web-components/index.ts"],
+      "@web-components/*": ["src/web-components/*"],
+      "@shared": ["src/shared/index.ts"],
+      "@shared/*": ["src/shared/*"],
+      "@styles": ["src/styles/index.css"],
+      "@styles/*": ["src/styles/*"]
+    }
   },
   "include": ["src", "scripts"]
 }
