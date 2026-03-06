@@ -1,0 +1,89 @@
+# name: Optimize icons
+
+# on:
+#   push:
+#     paths:
+#       - 'src/icons/**/*.svg'
+#   pull_request:
+#     paths:
+#       - 'src/icons/**/*.svg'
+#   workflow_dispatch:
+
+# permissions:
+#   contents: write
+
+# jobs:
+#   optimize:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version: 22
+#       - name: Enable Corepack (Yarn)
+#         run: |
+#           corepack enable
+#           corepack prepare yarn@4.9.4 --activate
+#       - name: Cache Yarn cache (Yarn v4)
+#         uses: actions/cache@v4
+#         with:
+#           path: .yarn/cache
+#           key: ${{ runner.os }}-yarn4-${{ hashFiles('yarn.lock') }}
+#           restore-keys: |
+#             ${{ runner.os }}-yarn4-
+#       - name: Install dependencies
+#         run: yarn install --immutable
+
+#       - name: Optimize SVGs
+#         run: yarn run optimize-icons
+
+#       - name: Re-generate icons map
+#         run: yarn run generate:icons
+
+#       - name: Commit and push changes (if any)
+#         id: commit
+#         shell: bash
+#         run: |
+#           set -e
+#           git config user.name "github-actions[bot]"
+#           git config user.email "github-actions[bot]@users.noreply.github.com"
+#           # Stage only icon files and the generated map
+#           git add -A src/icons src/icons.generated.ts || true
+#           if git diff --cached --quiet; then
+#             echo "no_changes=true" >> $GITHUB_OUTPUT
+#             echo "No icon changes to commit."
+#             exit 0
+#           fi
+#           git commit -m "chore: optimize icons and update map"
+#           # Try pushing back to the contributor branch (works for same-repo PRs)
+#           if git push; then
+#             echo "no_changes=false" >> $GITHUB_OUTPUT
+#             echo "pushed=true" >> $GITHUB_OUTPUT
+#             exit 0
+#           fi
+#           # Fallback for forks: create a patch artifact for the contributor
+#           echo "pushed=false" >> $GITHUB_OUTPUT
+#           git diff HEAD~1 HEAD > icons-optimization.patch
+
+#       - name: Upload patch (fork fallback)
+#         if: steps.commit.outputs.pushed == 'false' && steps.commit.outputs.no_changes == 'false'
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: icons-optimization-patch
+#           path: icons-optimization.patch
+
+#       - name: Comment with patch instructions (fork fallback)
+#         if: steps.commit.outputs.pushed == 'false' && steps.commit.outputs.no_changes == 'false' && github.event_name == 'pull_request'
+#         uses: actions/github-script@v7
+#         with:
+#           script: |
+#             const runId = process.env.GITHUB_RUN_ID
+#             const artifactNote = `Optimization changes could not be pushed to the fork. Download the artifact from the workflow run and apply locally:\n\n\n\n\n  git apply icons-optimization.patch\n  git add -A\n  git commit -m "chore: optimize icons and update map"\n  git push\n`
+#             await github.rest.issues.createComment({
+#               owner: context.repo.owner,
+#               repo: context.repo.repo,
+#               issue_number: context.payload.pull_request.number,
+#               body: artifactNote
+#             })
